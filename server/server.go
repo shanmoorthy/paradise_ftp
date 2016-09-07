@@ -34,6 +34,8 @@ type Paradise struct {
 	passives      map[string]*Passive
 	lastPassCid   string
 	userInfo      map[string]string
+	fm            *paradise.FileManager
+	am            *paradise.AuthManager
 }
 
 func init() {
@@ -62,7 +64,7 @@ func init() {
 	ConnectionMap = make(map[string]*Paradise)
 }
 
-func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
+func NewParadise(connection net.Conn, cid string, now int64, fm *paradise.FileManager, am *paradise.AuthManager) *Paradise {
 	p := Paradise{}
 
 	p.writer = bufio.NewWriter(connection)
@@ -75,6 +77,8 @@ func NewParadise(connection net.Conn, cid string, now int64) *Paradise {
 	p.passives = make(map[string]*Passive)
 	p.userInfo = make(map[string]string)
 	p.userInfo["path"] = "/"
+	p.fm = fm
+	p.am = am
 	return &p
 }
 
