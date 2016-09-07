@@ -1,6 +1,10 @@
 package server
 
-import "io"
+import (
+	"io"
+
+	"github.com/davecgh/go-spew/spew"
+)
 import "time"
 
 func (p *Paradise) HandleStore() {
@@ -37,6 +41,7 @@ func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
+	spew.Dump(passive, p.buffer[:20])
 
 	// TODO run p.buffer thru mime type checker
 	// if mime type bad, reject upload
@@ -49,17 +54,21 @@ func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 	for {
 		temp_buffer := make([]byte, 20971520) // reads 20MB at a time
 		n, err = passive.connection.Read(temp_buffer)
-		total += int64(n)
-
 		if err != nil {
+			if err != io.EOF {
+				return 0, err
+			}
 			break
 		}
+		total += int64(n)
+		spew.Dump(n, temp_buffer[:20])
 		// TODO send temp_buffer to where u want bits stored
 		if err != nil {
 			break
 		}
 	}
 	//fmt.Println(p.id, " Done ", total)
+	spew.Dump(total)
 
 	return total, err
 }
