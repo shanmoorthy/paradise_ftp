@@ -30,6 +30,7 @@ type Passive struct {
 	connectedAt     int64
 	connection      *net.TCPConn
 	command         string
+	path            string
 	param           string
 	cid             string
 	port            int
@@ -99,6 +100,7 @@ func (p *Paradise) HandlePassive() {
 	cid := genClientID()
 	passive := NewPassive(passiveListen, cid, time.Now().Unix())
 	passive.command = p.command
+	passive.path = p.path
 	passive.param = p.param
 	p.lastPassCid = cid
 	p.passives[cid] = passive
