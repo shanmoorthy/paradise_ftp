@@ -1,7 +1,13 @@
 package paradise
 
+import (
+	"io"
+	"os"
+)
+
 type FileSystem interface {
 	GetFiles(userInfo *map[string]string) ([]map[string]string, error)
+	WriteFile(path, filename string) (io.WriteCloser, error)
 }
 
 type FileManager struct {
@@ -26,6 +32,12 @@ func (dfs DefaultFileSystem) GetFiles(userInfo *map[string]string) ([]map[string
 	}
 
 	return files, nil
+}
+
+func (dfs DefaultFileSystem) WriteFile(path, filename string) (writer io.WriteCloser, err error) {
+	writer = os.Stdout
+	err = nil
+	return
 }
 
 func NewDefaultFileSystem() *FileManager {

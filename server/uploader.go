@@ -1,9 +1,8 @@
 package server
 
 import (
+	"bytes"
 	"io"
-
-	"github.com/davecgh/go-spew/spew"
 )
 import "time"
 
@@ -41,8 +40,12 @@ func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 	if err != nil {
 		return 0, err
 	}
-	spew.Dump(passive, p.buffer[:20])
-
+	writer, err := p.fm.WriteFile(passive.path, passive.param)
+	if err != nil {
+		return 0, err
+	}
+	defer writer.Close()
+	io.Copy(writer, bytes.NewReader(p.buffer))
 	// TODO run p.buffer thru mime type checker
 	// if mime type bad, reject upload
 
@@ -61,15 +64,14 @@ func (p *Paradise) storeOrAppend(passive *Passive) (int64, error) {
 			break
 		}
 		total += int64(n)
-		spew.Dump(n, temp_buffer[:20])
+		io.Copy(writer, bytes.NewReader(temp_buffer[:n]))
+
 		// TODO send temp_buffer to where u want bits stored
 		if err != nil {
 			break
 		}
 	}
 	//fmt.Println(p.id, " Done ", total)
-	spew.Dump(total)
-
 	return total, err
 }
 
