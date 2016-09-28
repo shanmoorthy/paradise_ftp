@@ -1,6 +1,9 @@
 package server
 
-import "fmt"
+import (
+	"fmt"
+	"math/rand"
+)
 import "sync"
 import "net"
 import "strconv"
@@ -86,7 +89,10 @@ func anotherPassiveIsAvail() bool {
 }
 
 func (p *Paradise) HandlePassive() {
-	laddr, err := net.ResolveTCPAddr("tcp", "0.0.0.0:0")
+	addr := p.theConnection.LocalAddr()
+	tokens := strings.Split(addr.String(), ":")
+	host := tokens[0]
+	laddr, err := net.ResolveTCPAddr("tcp", host+":"+strconv.Itoa(rand.Intn(Settings.MaxPassive)+Settings.MinPassivePort))
 	passiveListen, err := net.ListenTCP("tcp", laddr)
 	if err != nil {
 		p.writeMessage(550, "Error with passive: "+err.Error())
@@ -108,9 +114,6 @@ func (p *Paradise) HandlePassive() {
 	if p.command == "PASV" {
 		p1 := passive.port / 256
 		p2 := passive.port - (p1 * 256)
-		addr := p.theConnection.LocalAddr()
-		tokens := strings.Split(addr.String(), ":")
-		host := tokens[0]
 		quads := strings.Split(host, ".")
 		target := fmt.Sprintf("(%s,%s,%s,%s,%d,%d)", quads[0], quads[1], quads[2], quads[3], p1, p2)
 		msg := "Entering Passive Mode " + target

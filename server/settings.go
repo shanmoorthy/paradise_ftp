@@ -8,6 +8,7 @@ type ParadiseSettings struct {
 	Host           string
 	Port           int
 	MaxConnections int
+	MinPassivePort int
 	MaxPassive     int
 	Exec           string
 }
